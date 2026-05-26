@@ -7,6 +7,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lab 9</title>
 
+  <script src="https://cdn.trackjs.com/agent/v3/latest/t.js"></script>
+  <script>
+    window.TrackJS && TrackJS.install({ 
+      token: "b97853cea5f94ed7907f128762130571"
+      application: "lab9"
+    });
+  </script>
+
   <style>
     button {
       margin: 3px;
@@ -88,6 +96,28 @@
   </main>
 
   <script>
+    // step 4 
+    class EmptyInputError extends Error {
+      constructor(message) {
+        super(message);
+        this.name = 'EmptyInputError';
+      }
+    }
+
+    class InvalidNumberError extends Error {
+      constructor(message) {
+        super(message);
+        this.name = 'InvalidNumberError';
+      }
+    }
+
+    class DivideByZeroError extends Error {
+      constructor(message) {
+        super(message);
+        this.name = 'DivideByZeroError';
+      }
+    }
+
     let form = document.querySelector('form');
     form.addEventListener('submit', e => {
       e.preventDefault();
@@ -95,13 +125,139 @@
       let firstNum = document.querySelector('#first-num').value;
       let secondNum = document.querySelector('#second-num').value;
       let operator = document.querySelector('#operator').value;
-      output.innerHTML = eval(`${firstNum} ${operator} ${secondNum}`);
+
+      // steps 3 and 4
+      try {
+        if (firstNum === '' || secondNum === '') {
+          throw new EmptyInputError('Both number fields are required.');
+        }
+        if (isNaN(Number(firstNum)) || isNaN(Number(secondNum))) {
+          throw new InvalidNumberError('Inputs must be valid numbers.');
+        }
+        if (operator === '/' && Number(secondNum) === 0) {
+          throw new DivideByZeroError('You cannot divide by zero.');
+        }
+        output.innerHTML = eval(`${firstNum} ${operator} ${secondNum}`);
+      } catch (err) {
+        if (err instanceof EmptyInputError) {
+          output.innerHTML = `Empty input: ${err.message}`;
+        } else if (err instanceof InvalidNumberError) {
+          output.innerHTML = `Invalid number: ${err.message}`;
+        } else if (err instanceof DivideByZeroError) {
+          output.innerHTML = `Math error: ${err.message}`;
+        } else {
+          output.innerHTML = `Unexpected error: ${err.message}`;
+        }
+        console.error(err.name + ':', err.message);
+      } finally {
+        console.log('Calculation attempt finished.');
+      }
     });
 
+    // Step 2
     let errorBtns = Array.from(document.querySelectorAll('#error-btns > button'));
 
-    // Start your code here
-    // You may move this JS to another file if you wish
+    const sampleData = [
+      { name: 'Alice', age: 21, major: 'CS' },
+      { name: 'Bob',   age: 22, major: 'Math' },
+      { name: 'Carol', age: 20, major: 'Physics' },
+    ];
+
+    // Console Log
+    errorBtns[0].addEventListener('click', () => {
+      console.log('Hello from console.log. Sample data:', sampleData);
+    });
+
+    // Console Error
+    errorBtns[1].addEventListener('click', () => {
+      console.error('This is an error message logged with console.error.');
+    });
+
+    // Console Count
+    errorBtns[2].addEventListener('click', () => {
+      console.count('Count button clicked');
+    });
+
+    // Console Warn
+    errorBtns[3].addEventListener('click', () => {
+      console.warn('This is a warning message logged with console.warn.');
+    });
+
+    // Console Assert (only log when the assertion is false)
+    errorBtns[4].addEventListener('click', () => {
+      const value = 5;
+      console.assert(value > 10, 'Assertion failed: value should be > 10, got', value);
+    });
+
+    // Console Clear
+    errorBtns[5].addEventListener('click', () => {
+      console.clear();
+    });
+
+    // Console Dir (show the JS object/properties view of a DOM node)
+    errorBtns[6].addEventListener('click', () => {
+      console.dir(document.querySelector('form'));
+    });
+
+    // Console dirxml (show the XML/HTML tree view of a DOM node)
+    errorBtns[7].addEventListener('click', () => {
+      console.dirxml(document.querySelector('main'));
+    });
+
+    // Console Group Start
+    errorBtns[8].addEventListener('click', () => {
+      console.group('My Group');
+      console.log('This message is inside the group.');
+      console.log('So is this one.');
+    });
+
+    // Console Group End
+    errorBtns[9].addEventListener('click', () => {
+      console.log('Last message before closing the group.');
+      console.groupEnd();
+    });
+
+    // Console Table
+    errorBtns[10].addEventListener('click', () => {
+      console.table(sampleData);
+    });
+
+    // Start Timer
+    errorBtns[11].addEventListener('click', () => {
+      console.time('myTimer');
+      console.log('Timer started. Click "End Timer" to stop it.');
+    });
+
+    // End Timer
+    errorBtns[12].addEventListener('click', () => {
+      console.timeEnd('myTimer');
+    });
+
+    // Console Trace (prints the call stack to here)
+    errorBtns[13].addEventListener('click', () => {
+      function inner() {
+        console.trace('Stack trace from inner()');
+      }
+      function outer() {
+        inner();
+      }
+      outer();
+    });
+
+    // step 5
+    errorBtns[14].addEventListener('click', () => {
+      // calling a function that does not exist (uncaught ReferenceError)
+      nonExistentFunction();
+    });
+
+    window.onerror = function (message, source, lineno, colno, error) {
+      console.log('Global error captured by window.onerror');
+      console.log('Message:', message);
+      console.log('Source:', source);
+      console.log('Line:', lineno, 'Column:', colno);
+      console.log('Error object:', error);
+      return false; // let the browser also log it
+    };
   </script>
 </body>
 
